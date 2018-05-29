@@ -1,1 +1,8 @@
-# Image Classification using cifar_10 dataset
+# Image Recognition using cifar-10 dataset
+
+## To do list
+
+[x] cifar data loader
+[ ] reduced vgg-16 type architecture
+[ ] resdidual net type architecture
+[ ] performance comparison of architectures
