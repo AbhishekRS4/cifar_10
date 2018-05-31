@@ -17,7 +17,7 @@ def cifar_data_loader(pickled_data, data_format = "channels_first"):
     if data_format == "channels_last":
         data = np.transpose(data, [0, 2, 3, 1])
    
-    labels = np.array(data_dict[b'labels'], dtype = np.int32).reshape(-1, 1)
+    labels = np.array(data_dict[b"labels"], dtype = np.int32).reshape(len(data_dict[b"labels"]), 1)
 
     return (data, labels) 
 
