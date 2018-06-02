@@ -16,8 +16,8 @@
     "learning_rate" : 0.0003,
     "num_epochs" : 300,
     "batch_size" : 64,
-    "model_metrics" : ["cifar_vgg_metrics.npy", "cifar_res_metrics.npy"],
-    "model_file" : ["cifar_vgg_model", "cifar_res_model"],
-    "model_directory" : ["model_vgg_", "model_res_"],
+    "model_metrics" : ["cifar_vgg_metrics.npy", "cifar_res_metrics.npy", "cifar_preact_res_metrics.npy"],
+    "model_file" : ["cifar_vgg_model", "cifar_res_model", "cifar_preact_res_model"],
+    "model_directory" : ["model_vgg_", "model_res_", "model_preact_res_"],
     "model_to_use" : 1
 }
