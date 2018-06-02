@@ -43,7 +43,8 @@ def get_data(is_training, directory, data_format):
             else:
                 data = np.vstack((data, temp_data))
                 labels = np.vstack((labels, temp_labels)) 
- 
+
+    data = data / 255.0 
     return (data, labels)
 
 # return labels in one-hot encoding manner
@@ -62,8 +63,8 @@ def get_preprocessed_labels(all_labels, training = False):
 
 
 # split into train and validation set
-def get_train_validation_set(all_images, all_labels, validation_size = 0.04):
-    train_images, valid_images, train_labels, valid_labels = train_test_split(all_images, all_labels, test_size = validation_size, random_state = 4)
+def get_train_validation_set(all_images, all_labels, validation_size = 0.01):
+    train_images, valid_images, train_labels, valid_labels = train_test_split(all_images, all_labels, test_size = validation_size)
     
     return (train_images, train_labels, valid_images, valid_labels)
 
