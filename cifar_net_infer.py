@@ -13,7 +13,7 @@ import network_architecture as na
 param_config_file_name = os.path.join(os.getcwd(), "cifar_config.json")
 
 
-# load the vgg based architecture
+# load the network based on vgg encoder
 def load_model_vgg(img_pl, training_pl, config):
     net_arch = na.Network_Architecture(img_pl, config['kernel_size'], config['num_kernels'], config['strides'], config['data_format'], config['padding'], config['pool_size'], training_pl, config['dense_layer_neurons'], config['NUM_CLASSES'], config['dropout_rate'])
     net_arch.vgg_encoder()
@@ -21,13 +21,19 @@ def load_model_vgg(img_pl, training_pl, config):
 
     return logits
 
-# load the resnet based architecture
+# load the network based on normal residual encoder
 def load_model_res(img_pl, training_pl, config):
     net_arch = na.Network_Architecture(img_pl, config['kernel_size'], config['num_kernels'], config['strides'], config['data_format'], config['padding'], config['pool_size'], training_pl, config['dense_layer_neurons'], config['NUM_CLASSES'], config['dropout_rate'], config['reduction_strides'])
     net_arch.residual_encoder()
     logits = net_arch.logits
 
     return logits
+
+# load the network based on pre-activation residual encoder
+def load_model_preact_res(img_pl, training_pl, config):
+    net_arch = na.Network_Architecture(img_pl, config['kernel_size'], config['num_kernels'], config['strides'], config['data_format'], config['padding'], config['pool_size'], training_pl, config['dense_layer_neurons'], config['NUM_CLASSES'], config['dropout_rate'], config['reduction_strides'])
+    net_arch.preactivation_residual_encoder()
+    logits = net_arch.logits
 
 # run inference on test set
 def infer():
@@ -61,8 +67,10 @@ def infer():
 
     if model_to_use == 0:
         network_logits = load_model_vgg(img_pl, training_pl, config)
-    else:
+    elif model_to_use == 1:
         network_logits = load_model_res(img_pl, training_pl, config)
+    else:
+        network_logits = load_model_preact_res(img_pl, training_pl, config)
 
     probs_prediction = get_softmax_layer(input_tensor = network_logits)
     print("Loading the Network Completed...........")
