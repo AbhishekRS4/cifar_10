@@ -54,11 +54,12 @@ def batch_train():
 
     print("Reading the config file..................")
     config = read_config_file(param_config_file_name)
+    model_to_use = config['model_to_use']
     print("Reading the config file completed........")
     print("")
 
     print("Initializing.............................")
-    model_directory = config['model_directory'] + str(config['num_epochs'])
+    model_directory = config['model_directory'][model_to_use] + str(config['num_epochs'])
     init(model_directory)
     print("Initializing completed...................")
     print("")
@@ -86,20 +87,19 @@ def batch_train():
     
     LABEL_PLACEHOLDER_SHAPE = [None] + [config['NUM_CLASSES']]
     img_pl, lbl_pl = get_placeholders(img_placeholder_shape = IMAGE_PLACEHOLDER_SHAPE, training = bool(config['TRAINING']), lbl_placeholder_shape = LABEL_PLACEHOLDER_SHAPE)
-    
-    '''
-    net_arch = na.Network_Architecture(img_pl, config['kernel_size'], config['num_kernels'], config['strides'], config['data_format'], config['padding'], config['pool_size'], bool(config['TRAINING']), config['dense_layer_neurons'], config['NUM_CLASSES'], config['dropout_rate'])
-    net_arch.vgg_encoder()
-    vgg_out = net_arch.pool2
-    net_arch.dense_network(vgg_out)
-    logits = net_arch.logits
-    '''
-
-    net_arch = na.Network_Architecture(img_pl, config['kernel_size'], config['num_kernels'], config['strides'], config['data_format'], config['padding'], config['pool_size'], bool(config['TRAINING']), config['dense_layer_neurons'], config['NUM_CLASSES'], config['dropout_rate'], config['reduction_strides'])
-    net_arch.residual_encoder()
-    logits = net_arch.logits
+    training_pl = tf.placeholder(tf.bool)  
+ 
+    if model_to_use == 0: 
+        net_arch = na.Network_Architecture(img_pl, config['kernel_size'], config['num_kernels'], config['strides'], config['data_format'], config['padding'], config['pool_size'], training_pl, config['dense_layer_neurons'], config['NUM_CLASSES'], config['dropout_rate'])
+        net_arch.vgg_encoder()
+        logits = net_arch.logits
+    else:
+        net_arch = na.Network_Architecture(img_pl, config['kernel_size'], config['num_kernels'], config['strides'], config['data_format'], config['padding'], config['pool_size'], training_pl, config['dense_layer_neurons'], config['NUM_CLASSES'], config['dropout_rate'], config['reduction_strides'])
+        net_arch.residual_encoder()
+        logits = net_arch.logits
     
 
+    extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)    
     loss = get_loss_function(lbl_pl, logits)
     optimizer = get_optimizer(config['learning_rate'], loss)
  
@@ -125,9 +125,7 @@ def batch_train():
 
     train_loss_per_epoch = list()
     valid_loss_per_epoch = list()
-    #print(logits)
     
-    #'''
     for epoch in range(num_epochs):
         ti = time.time()
         temp_loss_per_epoch = 0
@@ -136,10 +134,10 @@ def batch_train():
             batch_images = train_images[batch_id * batch_size : (batch_id + 1) * batch_size]
             batch_labels = train_labels[batch_id * batch_size : (batch_id + 1) * batch_size]
             
-            _, loss_per_batch = ss.run([optimizer, loss], feed_dict = {img_pl : batch_images, lbl_pl : batch_labels})
+            _, _, loss_per_batch = ss.run([optimizer, extra_update_ops, loss], feed_dict = {img_pl : batch_images, lbl_pl : batch_labels, training_pl : bool(config['TRAINING'])})
             temp_loss_per_epoch += (batch_labels.shape[0] * loss_per_batch)
         ti = time.time() - ti
-        loss_validation_set = ss.run(loss, feed_dict = {img_pl : valid_images, lbl_pl : valid_labels})
+        loss_validation_set = ss.run(loss, feed_dict = {img_pl : valid_images, lbl_pl : valid_labels, training_pl : not(config['TRAINING'])})
         train_loss_per_epoch.append(temp_loss_per_epoch)
         valid_loss_per_epoch.append(loss_validation_set)
 
@@ -147,12 +145,16 @@ def batch_train():
         print("Avg. training loss : " + str(temp_loss_per_epoch / train_images.shape[0]))
         print("Avg. validation loss : " + str(loss_validation_set))
         print("")
-    
+
+        if (epoch + 1) % 10 == 0:
+            save_model(ss, model_directory, config['model_file'][model_to_use], epoch)
+        
+
     print("Training the Network Completed...........")
     print("")
     
     print("Saving the model.........................")
-    save_model(ss, model_directory, config['model_file'], epoch)
+    save_model(ss, model_directory, config['model_file'][model_to_use], epoch)
     train_loss_per_epoch = np.array(train_loss_per_epoch)
     valid_loss_per_epoch = np.array(valid_loss_per_epoch)
     
@@ -162,10 +164,9 @@ def batch_train():
     losses_dict['train_loss'] = train_loss_per_epoch
     losses_dict['valid_loss'] = valid_loss_per_epoch
 
-    np.save(os.path.join(os.getcwd(), os.path.join(model_directory, config['model_metrics'])), (losses_dict))
+    np.save(os.path.join(os.getcwd(), os.path.join(model_directory, config['model_metrics'][model_to_use])), (losses_dict))
     print("Saving the model Completed...............")
     print("")
-    #'''
 
     ss.close()
 
