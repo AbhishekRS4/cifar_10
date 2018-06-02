@@ -8,6 +8,7 @@
 ## To do list
 
 - [x] cifar data loader
-- [x] vgg-16 type architecture
-- [x] resnet type architecture
+- [x] vgg-16 based network
+- [x] normal residual encoder based network
+- [x] pre-activation residual encoder based network
 - [ ] performance comparison of architectures
