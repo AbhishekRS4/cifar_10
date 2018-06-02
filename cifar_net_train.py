@@ -76,7 +76,7 @@ def batch_train():
     print("Preprocessing of the data completed......")
     print("")
 
- 
+
     print("Building the network.....................")
      
     if config['data_format'] == 'channels_last': 
@@ -97,8 +97,6 @@ def batch_train():
 
     net_arch = na.Network_Architecture(img_pl, config['kernel_size'], config['num_kernels'], config['strides'], config['data_format'], config['padding'], config['pool_size'], bool(config['TRAINING']), config['dense_layer_neurons'], config['NUM_CLASSES'], config['dropout_rate'], config['reduction_strides'])
     net_arch.residual_encoder()
-    res_out = net_arch.elu3_4
-    net_arch.dense_network(res_out)
     logits = net_arch.logits
     
 
@@ -127,7 +125,9 @@ def batch_train():
 
     train_loss_per_epoch = list()
     valid_loss_per_epoch = list()
-
+    #print(logits)
+    
+    #'''
     for epoch in range(num_epochs):
         ti = time.time()
         temp_loss_per_epoch = 0
@@ -142,6 +142,7 @@ def batch_train():
         loss_validation_set = ss.run(loss, feed_dict = {img_pl : valid_images, lbl_pl : valid_labels})
         train_loss_per_epoch.append(temp_loss_per_epoch)
         valid_loss_per_epoch.append(loss_validation_set)
+
         print("Epoch : " + str(epoch+1) + "/" + str(num_epochs) + ", time taken : " + str(ti) + " sec.")
         print("Avg. training loss : " + str(temp_loss_per_epoch / train_images.shape[0]))
         print("Avg. validation loss : " + str(loss_validation_set))
@@ -164,6 +165,8 @@ def batch_train():
     np.save(os.path.join(os.getcwd(), os.path.join(model_directory, config['model_metrics'])), (losses_dict))
     print("Saving the model Completed...............")
     print("")
+    #'''
+
     ss.close()
 
 def main():
