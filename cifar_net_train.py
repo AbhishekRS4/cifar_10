@@ -93,11 +93,15 @@ def batch_train():
         net_arch = na.Network_Architecture(img_pl, config['kernel_size'], config['num_kernels'], config['strides'], config['data_format'], config['padding'], config['pool_size'], training_pl, config['dense_layer_neurons'], config['NUM_CLASSES'], config['dropout_rate'])
         net_arch.vgg_encoder()
         logits = net_arch.logits
-    else:
+    elif model_to_use == 1:
         net_arch = na.Network_Architecture(img_pl, config['kernel_size'], config['num_kernels'], config['strides'], config['data_format'], config['padding'], config['pool_size'], training_pl, config['dense_layer_neurons'], config['NUM_CLASSES'], config['dropout_rate'], config['reduction_strides'])
         net_arch.residual_encoder()
         logits = net_arch.logits
-    
+    else:
+        net_arch = na.Network_Architecture(img_pl, config['kernel_size'], config['num_kernels'], config['strides'], config['data_format'], config['padding'], config['pool_size'], training_pl, config['dense_layer_neurons'], config['NUM_CLASSES'], config['dropout_rate'], config['reduction_strides'])
+        net_arch.preactivation_residual_encoder()
+        logits = net_arch.logits
+ 
 
     extra_update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)    
     loss = get_loss_function(lbl_pl, logits)
