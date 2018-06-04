@@ -7,7 +7,7 @@
 ## To do list
 
 - [x] cifar data loader
-- [x] vgg-16 based network
+- [x] vgg-16 encoder based network
 - [x] normal residual encoder based network
 - [x] pre-activation residual encoder based network
 - [ ] performance comparison of architectures
