@@ -6,9 +6,9 @@ import time
 import numpy as np
 import tensorflow as tf
 
+import network_architecture as na
 from cifar_net_utils import read_config_file, get_data, get_preprocessed_labels, get_accuracy_score, get_confusion_matrix
 from cifar_net_train import get_placeholders, get_softmax_layer
-import network_architecture as na
 
 param_config_file_name = os.path.join(os.getcwd(), "cifar_config.json")
 
@@ -95,8 +95,8 @@ def infer():
     print("Time Taken for Inference : " +str(ti))
     print("")
 
-    logits_predicted_tensor = tf.convert_to_tensor(probs_predicted)
-    output_labels = tf.argmax(logits_predicted_tensor, axis = 1)
+    probs_predicted_tensor = tf.convert_to_tensor(probs_predicted)
+    output_labels = tf.argmax(probs_predicted_tensor, axis = 1)
     all_labels_predicted = ss.run(output_labels)
     all_labels_predicted = np.array(all_labels_predicted)
 
